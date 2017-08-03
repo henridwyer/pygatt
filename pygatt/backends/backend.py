@@ -1,6 +1,6 @@
 import logging
-
 from enum import Enum
+from uuid import UUID
 
 log = logging.getLogger(__name__)
 
@@ -54,8 +54,10 @@ class BLEBackend(object):
         Returns a list of BLE devices found.
         """
         devices = self.scan(*args, **kwargs)
-        return [device for device in devices
-                if name_filter in (device['name'] or '')]
+        return [
+            device for device in devices
+            if name_filter in (device['name'] or '')
+        ]
 
     def clear_bond(self, address=None):
         raise NotImplementedError()
@@ -67,6 +69,7 @@ class Characteristic(object):
     Only valid for the lifespan of a BLE connection, since the handle values are
     dynamic.
     """
+
     def __init__(self, uuid, handle):
         """
         Sets the characteritic uuid and handle.
@@ -79,12 +82,34 @@ class Characteristic(object):
             # uuid_string: handle
         }
 
-    def add_descriptor(self, uuid, handle):
+    def add_descriptor(self, descriptor):
         """
         Add a characteristic descriptor to the dictionary of descriptors.
         """
-        self.descriptors[uuid] = handle
+        self.descriptors[UUID(descriptor.uuid)] = descriptor
 
     def __str__(self):
-        return "<%s uuid=%s handle=%d>" % (self.__class__.__name__,
-                                           self.uuid, self.handle)
+        return "<%s uuid=%s handle=%d>" % (self.__class__.__name__, self.uuid,
+                                           self.handle)
+
+
+class Descriptor(object):
+    """
+    A GATT characteristic descriptor, including it handle value.
+    Only valid for the lifespan of a BLE connection, since the handle values are
+    dynamic.
+    """
+
+    def __init__(self, uuid, handle):
+        """
+        Sets the descriptor uuid and handle.
+
+        handle - a bytearray
+        """
+        self.uuid = uuid
+        self.handle = handle
+        self.characteristc = None
+
+    def __str__(self):
+        return "<%s uuid=%s handle=%d>" % (self.__class__.__name__, self.uuid,
+                                           self.handle)
