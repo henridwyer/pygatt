@@ -10,11 +10,13 @@ def connection_required(func):
     """Raise an exception before calling the actual function if the device is
     not connection.
     """
+
     @functools.wraps(func)
     def wrapper(self, *args, **kwargs):
         if not self._connected:
             raise exceptions.NotConnectedError()
         return func(self, *args, **kwargs)
+
     return wrapper
 
 
@@ -26,6 +28,7 @@ class GATTToolBLEDevice(BLEDevice):
     every command has to synchronize around a the same interactive gatttool
     session, using the same connection.
     """
+
     def __init__(self, address, backend):
         super(GATTToolBLEDevice, self).__init__(address)
         self._backend = backend
@@ -57,3 +60,9 @@ class GATTToolBLEDevice(BLEDevice):
         self._characteristics = self._backend.discover_characteristics(
             self, *args, **kwargs)
         return self._characteristics
+
+    @connection_required
+    def discover_descriptors(self, *args, **kwargs):
+        self._descriptors = self._backend.discover_descriptors(
+            self, *args, **kwargs)
+        return self._descriptors
