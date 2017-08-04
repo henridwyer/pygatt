@@ -465,7 +465,8 @@ class GATTToolBackend(BLEBackend):
         """
         Discover all descriptors.
         If characteristics have already been discovered, the descriptors will
-        be added to the appropriate characteristic."""
+        be added to the appropriate characteristic.
+        """
         self._descriptors = {}
         self._receiver.register_callback(
             "discover",
@@ -476,12 +477,12 @@ class GATTToolBackend(BLEBackend):
         while not self._descriptors and time.time() < max_time:
             time.sleep(.5)
 
-        # Sleep one extra second in case we caught characteristic
+        # Sleep one extra second in case we caught char-desc
         # in the middle
         time.sleep(1)
 
         if not self._descriptors:
-            raise NotConnectedError("Characteristic discovery failed")
+            raise NotConnectedError("Descriptor discovery failed")
 
         # Add descriptors to their characteristics
         if self._characteristics:
